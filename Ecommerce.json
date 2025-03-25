@@ -1,0 +1,335 @@
+{
+  "name": "Ecommerce",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=#Rol\n-Eres un asistente que habla en ingles siempre capaz de contestar preguntas del usuario basándote en informacion de tu herramienta Documents y de tu herramienta Products.\n\n#Tareas\n-Tu función principal es responder este mensaje {{ $json.message.text }}.\n\n-Utiliza información de la herramienta Products para preguntas sobre los productos del ecommerce.\n\n-Utiliza tu herramienta Documents para cualquier pregunta relacionada con el funcionamiento del ecommerce.\n\n#Notas\n-Tus respuestas deben ser claras y concisas, no deben exceder los 200 caracteres.\n-Si el cliente decide comprar el producto puedes pasarle el enlace para que pague. El enlace es https://www.google.com/?hl=es y debe ir siempre en un hipervínculo. ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        0,
+        -60
+      ],
+      "id": "2b6bf619-e001-4087-aab1-72850d911f56",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -40,
+        120
+      ],
+      "id": "413de636-627c-42cc-9e62-471f01a9b2a3",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "eAwXja4jqAqvtgVB",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        120
+      ],
+      "id": "ea9ceec2-0e98-45ef-bfa0-5e4ba5562c11",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        760,
+        240
+      ],
+      "id": "fd1fe9fd-ab43-438f-8e78-dbdc203b639f",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "eAwXja4jqAqvtgVB",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "ecommerceia",
+          "mode": "list",
+          "cachedResultName": "ecommerceia"
+        },
+        "options": {
+          "pineconeNamespace": "ecommerceia"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        480,
+        260
+      ],
+      "id": "76d1ecdc-be66-43b7-bd37-78124cda8394",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "6MpPBh5rgeUPbIy2",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        500,
+        400
+      ],
+      "id": "b10d255e-a24b-48de-b7f9-5e855aca7e79",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "eAwXja4jqAqvtgVB",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -220,
+        -60
+      ],
+      "id": "a820f11e-aa05-45db-9848-8342fd4e0cd9",
+      "name": "Telegram Trigger",
+      "webhookId": "fda56cda-e47d-484b-9459-8283164278ac",
+      "credentials": {
+        "telegramApi": {
+          "id": "R61wxsqC8CDyu7uq",
+          "name": "Telegram ecommerce"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        360,
+        -60
+      ],
+      "id": "6faa5535-a452-4da1-bd51-643d53832cb6",
+      "name": "Telegram",
+      "webhookId": "d54b5402-61ff-4dd0-b706-0f4ee56cfb62",
+      "credentials": {
+        "telegramApi": {
+          "id": "R61wxsqC8CDyu7uq",
+          "name": "Telegram ecommerce"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1xQNy-rJz4tm1_pnpiD2x_covu3XzwKnf70bzCrbdiqg",
+          "mode": "list",
+          "cachedResultName": "Products",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xQNy-rJz4tm1_pnpiD2x_covu3XzwKnf70bzCrbdiqg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 453099425,
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xQNy-rJz4tm1_pnpiD2x_covu3XzwKnf70bzCrbdiqg/edit#gid=453099425"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        220,
+        120
+      ],
+      "id": "fe9f5f1d-0a3e-445b-8407-dc4c87ee6b55",
+      "name": "Products",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "jAZgwt4wViXNUM7s",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Documents",
+        "description": "Esta herramienta va a dar información sobre el funcionamiento del ecommerce"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        600,
+        80
+      ],
+      "id": "1127a212-b6d4-4d7e-a9f9-ec1dd4993a78",
+      "name": "Documents"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Documents",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Documents",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Products": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Documents": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "50504dcc-f863-4e48-bcfd-70050884c35f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6687a81ecdc130ec7eb8629f5d42efaf590d115c31cb564d92401a3c14f5f523"
+  },
+  "id": "RrbXLUssstAobyKx",
+  "tags": []
+}
